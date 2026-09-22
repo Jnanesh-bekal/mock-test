@@ -3,7 +3,7 @@
 window.examConfig = {
     stats: {
         totalTests: 18,
-        totalQuestions: 2668,
+        totalQuestions: 1200,
         totalCategories: 3
     },
     categories: [
@@ -29,7 +29,7 @@ window.examConfig = {
             icon: 'chart',
             tags: ['Options', 'Futures', 'Pricing'],
             testCount: 9,
-            questionCount: 2068,
+            questionCount: 600,
             available: true,
             route: 'renderEquityDerivatives'
         },

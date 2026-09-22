@@ -378,14 +378,14 @@ function renderEquityDerivatives() {
 
 async function loadEquityDerivativesSets() {
     const sets = [
-        { id: 10, name: 'EQ Set 1', description: 'Options Pricing Models Set No. 1' },
-        { id: 11, name: 'EQ Set 2', description: 'Options Pricing Models Set No. 2' },
-        { id: 12, name: 'EQ Set 3', description: 'Options Pricing Models Set No. 3' },
-        { id: 13, name: 'EQ Set 4', description: 'Futures & Hedging Strategies Set No. 1' },
-        { id: 14, name: 'EQ Set 5', description: 'Futures & Hedging Strategies Set No. 2' },
-        { id: 15, name: 'EQ Set 6', description: 'Futures & Hedging Strategies Set No. 3' },
-        { id: 16, name: 'EQ Set 7 - Structured Products 1', description: 'Structured Products Set 1' },
-        { id: 17, name: 'EQ Set 8 - Structured Products 2', description: 'Structured Products Set 2' },
+        { id: 10, name: 'EQ Set 1', description: 'Practice Questions Set No. 1' },
+        { id: 11, name: 'EQ Set 2', description: 'Practice Questions Set No. 2' },
+        { id: 12, name: 'EQ Set 3', description: 'Practice Questions Set No. 3' },
+        { id: 13, name: 'EQ Set 4', description: 'Practice Questions Set No. 4' },
+        { id: 14, name: 'EQ Set 5', description: 'Practice Questions Set No. 5' },
+        { id: 15, name: 'EQ Set 6', description: 'Practice Questions Set No. 6' },
+        { id: 16, name: 'EQ Set 7 - Last Day Revision 1', description: 'Last Day Revision Set 1' },
+        { id: 17, name: 'EQ Set 8 - Last Day Revision 2', description: 'Last Day Revision Set 2' },
         { id: 18, name: 'EQ Set 9 - Real Feel Timed', description: 'Real Feel Timed Test' }
     ];
     
