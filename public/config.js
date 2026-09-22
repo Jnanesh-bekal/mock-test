@@ -2,8 +2,8 @@
 
 window.examConfig = {
     stats: {
-        totalTests: 32,
-        totalQuestions: 1820,
+        totalTests: 18,
+        totalQuestions: 605,
         totalCategories: 3
     },
     categories: [
@@ -29,7 +29,7 @@ window.examConfig = {
             icon: 'chart',
             tags: ['Options', 'Futures', 'Pricing'],
             testCount: 9,
-            questionCount: 600,
+            questionCount: 5,
             available: true,
             route: 'renderEquityDerivatives'
         },
@@ -41,8 +41,8 @@ window.examConfig = {
             level: 'INTERMEDIATE',
             icon: 'search',
             tags: ['Valuation', 'Modeling', 'Reports'],
-            testCount: 14,
-            questionCount: 620,
+            testCount: 0,
+            questionCount: 0,
             available: false,
             route: null
         }
