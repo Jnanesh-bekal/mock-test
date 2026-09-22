@@ -196,12 +196,149 @@ async function getQuestionWithAnswer(questionId) {
 
 // Render Functions
 function renderHome() {
+    const config = window.examConfig;
+    
+    const homeHtml = `
+        <div class="min-h-screen hero-bg relative">
+            <!-- Dark blue tint overlay at top -->
+            <div class="absolute inset-0 bg-gradient-to-b from-blue-900/40 to-transparent pointer-events-none"></div>
+            
+            <!-- Navbar -->
+            <nav class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+                <div class="nav-pill rounded-full px-6 py-3 flex items-center gap-6 shadow-lg">
+                    <div class="wordmark text-lg font-medium text-gray-800">ExamForge</div>
+                    <div class="w-px h-4 bg-gray-300"></div>
+                    <a onclick="handleNavClick('analytics')" class="text-gray-600 hover:text-gray-800 cursor-pointer text-sm">Analytics</a>
+                    <a onclick="handleNavClick('bookmarks')" class="text-gray-600 hover:text-gray-800 cursor-pointer text-sm">Bookmarks</a>
+                    <a onclick="renderSearch()" class="text-gray-600 hover:text-gray-800 cursor-pointer text-sm">Search</a>
+                    <div class="w-px h-4 bg-gray-300"></div>
+                    <a onclick="handleNavClick('dashboard')" class="bg-gray-800 text-white px-4 py-1.5 rounded-full text-sm cursor-pointer hover:bg-gray-700">Dashboard</a>
+                </div>
+            </nav>
+
+            <!-- Main Content -->
+            <div class="relative z-10 pt-32 pb-20 px-6 max-w-7xl mx-auto">
+                <!-- Hero Section -->
+                <div class="mb-12">
+                    <div class="mono-label text-white/80 mb-4">PROFESSIONAL CERTIFICATION PREP</div>
+                    <h1 class="wordmark text-5xl md:text-6xl font-medium text-white mb-6 leading-tight">
+                        Master your <span class="text-blue-200">next certification.</span>
+                    </h1>
+                    <p class="text-white/90 text-lg max-w-2xl leading-relaxed">
+                        Structured practice tests, adaptive learning, and deep analytics — built for financial professionals preparing for SEBI and NSE examinations.
+                    </p>
+                </div>
+
+                <!-- Stat Cards -->
+                <div class="flex flex-wrap gap-6 mb-12">
+                    <div class="glass-card rounded-xl px-6 py-4 flex items-center gap-4 shadow-lg">
+                        ${getIcon('clipboard')}
+                        <div>
+                            <div class="text-2xl font-semibold text-gray-800">${config.stats.totalTests}</div>
+                            <div class="text-xs text-gray-600">Total Tests</div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl px-6 py-4 flex items-center gap-4 shadow-lg">
+                        ${getIcon('question')}
+                        <div>
+                            <div class="text-2xl font-semibold text-gray-800">${config.stats.totalQuestions.toLocaleString()}</div>
+                            <div class="text-xs text-gray-600">Questions</div>
+                        </div>
+                    </div>
+                    <div class="glass-card rounded-xl px-6 py-4 flex items-center gap-4 shadow-lg">
+                        ${getIcon('graduation')}
+                        <div>
+                            <div class="text-2xl font-semibold text-gray-800">${config.stats.totalCategories}</div>
+                            <div class="text-xs text-gray-600">Exam Categories</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Cards -->
+                <div class="relative mb-16 h-48">
+                    ${config.floatingCards.map((card, index) => `
+                        <div class="floating-card absolute rounded-lg px-4 py-3 flex items-center gap-2 cursor-default"
+                             style="right: ${20 + index * 20}px; bottom: ${index * 40}px; transform: rotate(${index * 2 - 2}deg);">
+                            ${getFloatingIcon(card.icon, card.color)}
+                            <span class="text-sm text-gray-700">${card.text}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Section Label -->
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="mono-label text-white/80">EXAM CATEGORIES</div>
+                    <div class="flex-1 h-px bg-white/30"></div>
+                    <div class="text-xs text-white/70">${config.stats.totalCategories} tracks</div>
+                </div>
+
+                <!-- Category Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
+                    ${config.categories.map(category => `
+                        <div class="glass-card rounded-xl p-6 shadow-lg card-hover transition-all duration-300 cursor-pointer"
+                             onclick="${category.available ? category.route + '()' : 'showComingSoon(event)'}"
+                             ${!category.available ? 'title="Coming soon"' : ''}>
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
+                                    ${getCategoryIcon(category.icon)}
+                                </div>
+                                <div class="mono-label text-blue-500">${category.level}</div>
+                            </div>
+                            <h3 class="text-xl font-semibold text-gray-800 mb-1">${category.title}</h3>
+                            <p class="text-sm text-gray-600 mb-3">${category.subtitle}</p>
+                            <p class="text-sm text-gray-600 mb-4 leading-relaxed">${category.description}</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${category.tags.map(tag => `
+                                    <span class="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-600">${tag}</span>
+                                `).join('')}
+                            </div>
+                            <div class="flex items-center justify-between pt-3 border-t border-gray-200">
+                                <div class="text-sm text-gray-600">
+                                    <span class="font-semibold text-gray-800">${category.testCount}</span> tests · 
+                                    <span class="font-semibold text-gray-800">${category.questionCount}</span> questions
+                                </div>
+                                ${category.available ? `
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-500">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                ` : `
+                                    <span class="text-xs text-gray-400">Coming soon</span>
+                                `}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <!-- Footer -->
+                <div class="border-t border-white/30 pt-8">
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="text-sm text-white/70">© 2026 ExamForge. All rights reserved.</div>
+                        <div class="flex items-center gap-6">
+                            <a href="#" class="text-sm text-white/70 hover:text-white">Privacy</a>
+                            <a href="#" class="text-sm text-white/70 hover:text-white">Terms</a>
+                            <a href="mailto:support@examforge.com" class="text-sm text-white/70 hover:text-white">Support</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    app.innerHTML = homeHtml;
+}
+
+// Render Sets Page (original SORM test selection)
+function renderSets() {
     const setsHtml = `
         <div class="min-h-screen gradient-bg">
             <nav class="bg-white/10 backdrop-blur-md border-b border-white/20">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
                         <div class="flex items-center">
+                            <button onclick="renderHome()" class="text-white/80 hover:text-white transition mr-4">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
                             <i class="fas fa-graduation-cap text-white text-2xl mr-3"></i>
                             <h1 class="text-white text-xl font-bold">SORM Mock Test System</h1>
                         </div>
@@ -670,6 +807,52 @@ function previousQuestion() {
 function goToQuestion(index) {
     currentState.currentQuestion = index;
     renderTest();
+}
+
+// Icon Helper Functions
+function getIcon(type) {
+    const icons = {
+        clipboard: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-500"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>`,
+        question: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-500"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+        graduation: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-500"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>`
+    };
+    return icons[type] || '';
+}
+
+function getFloatingIcon(type, color) {
+    const icons = {
+        check: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+        up: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>`,
+        warning: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`
+    };
+    return icons[type] || '';
+}
+
+function getCategoryIcon(type) {
+    const icons = {
+        shield: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>`,
+        chart: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>`,
+        search: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line><line x1="11" y1="8" x2="11" y2="14"></line><line x1="11" y1="16" x2="11.01" y2="16"></line></svg>`
+    };
+    return icons[type] || '';
+}
+
+// Navigation Handlers
+function handleNavClick(route) {
+    const availableRoutes = {
+        'analytics': false,
+        'bookmarks': false,
+        'dashboard': false
+    };
+    
+    if (!availableRoutes[route]) {
+        showComingSoon();
+    }
+}
+
+function showComingSoon(event) {
+    if (event) event.stopPropagation();
+    alert('Coming soon');
 }
 
 async function submitTestAnswers() {
