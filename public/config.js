@@ -1,6 +1,6 @@
 // ExamForge Home Page Configuration
 
-const examConfig = {
+window.examConfig = {
     stats: {
         totalTests: 32,
         totalQuestions: 1820,
