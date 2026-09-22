@@ -421,93 +421,36 @@ async function loadEquityDerivativesSets() {
 }
 
 function selectEquityDerivativesSet(setId) {
-    // For now, use a sample of questions from the existing questions.json
-    // In a real implementation, you would have separate questions for Equity Derivatives
     currentState.selectedSet = setId;
     currentState.currentCategory = 'EQ';
-    loadSampleEquityDerivativesQuestions(setId);
+    startEquityDerivativesTest(setId);
 }
 
-async function loadSampleEquityDerivativesQuestions(setId) {
-    // Sample Equity Derivatives questions
-    const sampleQuestions = [
-        {
-            id: `eq-${setId}-1`,
-            questionId: 1,
-            setId: setId,
-            question: "What is the primary purpose of an options contract?",
-            options: [
-                "To provide the right to buy or sell an underlying asset at a predetermined price",
-                "To guarantee the delivery of an asset",
-                "To provide leverage without risk",
-                "To eliminate all market risk"
-            ],
-            correctAnswer: 0
-        },
-        {
-            id: `eq-${setId}-2`,
-            questionId: 2,
-            setId: setId,
-            question: "Which of the following is NOT a type of option?",
-            options: [
-                "Call option",
-                "Put option",
-                "Forward option",
-                "Binary option"
-            ],
-            correctAnswer: 2
-        },
-        {
-            id: `eq-${setId}-3`,
-            questionId: 3,
-            setId: setId,
-            question: "The maximum loss for a buyer of a call option is limited to:",
-            options: [
-                "The premium paid",
-                "The strike price",
-                "The underlying asset price",
-                "Unlimited"
-            ],
-            correctAnswer: 0
-        },
-        {
-            id: `eq-${setId}-4`,
-            questionId: 4,
-            setId: setId,
-            question: "What is the 'Greeks' term that measures an option's sensitivity to changes in the underlying asset's price?",
-            options: [
-                "Theta",
-                "Vega",
-                "Delta",
-                "Rho"
-            ],
-            correctAnswer: 2
-        },
-        {
-            id: `eq-${setId}-5`,
-            questionId: 5,
-            setId: setId,
-            question: "A futures contract differs from a forward contract primarily because:",
-            options: [
-                "Futures are traded on exchanges while forwards are OTC",
-                "Forwards are standardized while futures are customized",
-                "Futures have no margin requirements",
-                "Forwards are more liquid than futures"
-            ],
-            correctAnswer: 0
+async function startEquityDerivativesTest(setId) {
+    try {
+        const response = await fetch('/data/equity-derivatives-questions.json');
+        const allQuestions = await response.json();
+        const setQuestions = allQuestions.filter(q => q.setId === setId);
+        
+        if (setQuestions.length === 0) {
+            alert('No questions available for this set.');
+            return;
         }
-    ];
 
-    currentState.questions = shuffleArray(sampleQuestions);
-    currentState.currentQuestion = 0;
-    currentState.answers = [];
-    currentState.timeRemaining = 10800; // 3 hours in seconds
-    currentState.view = 'test';
-    currentState.practiceMode = false;
-    currentState.showInstantSolution = false;
+        currentState.questions = shuffleArray(setQuestions);
+        currentState.currentQuestion = 0;
+        currentState.answers = [];
+        currentState.timeRemaining = 10800; // 3 hours in seconds
+        currentState.view = 'test';
+        currentState.practiceMode = false;
+        currentState.showInstantSolution = false;
 
-    startTimer();
-    renderTest();
+        startTimer();
+        renderTest();
+    } catch (error) {
+        console.error('Error loading Equity Derivatives questions:', error);
+        alert('Error loading questions. Please try again.');
+    }
 }
 
 // Render Sets Page (original SORM test selection)
