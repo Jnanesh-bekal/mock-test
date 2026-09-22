@@ -9,6 +9,7 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 let currentState = {
     view: 'home', // home, test, results, search
     selectedSet: null,
+    currentCategory: 'SORM', // SORM, EQ, RA
     questions: [],
     currentQuestion: 0,
     answers: [],
@@ -276,7 +277,7 @@ function renderHome() {
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
                     ${config.categories.map(category => `
                         <div class="glass-card rounded-xl p-6 shadow-lg card-hover transition-all duration-300 cursor-pointer"
-                             onclick="${category.available ? category.route + '()' : 'showComingSoon(event)'}"
+                             onclick="${category.available ? category.route + '()' : 'showComingSoon()'}"
                              ${!category.available ? 'title="Coming soon"' : ''}>
                             <div class="flex items-start justify-between mb-4">
                                 <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center">
@@ -328,6 +329,187 @@ function renderHome() {
     app.innerHTML = homeHtml;
 }
 
+// Render Equity Derivatives Sets Page
+function renderEquityDerivatives() {
+    const setsHtml = `
+        <div class="min-h-screen gradient-bg">
+            <nav class="bg-white/10 backdrop-blur-md border-b border-white/20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center h-16">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="renderHome()" class="text-white/80 hover:text-white transition" title="Go to Home">
+                                <i class="fas fa-home text-xl"></i>
+                            </button>
+                            <button onclick="renderHome()" class="text-white/80 hover:text-white transition" title="Back to Home">
+                                <i class="fas fa-arrow-left text-xl"></i>
+                            </button>
+                            <div class="w-px h-6 bg-white/30"></div>
+                            <i class="fas fa-chart-line text-white text-2xl mr-3"></i>
+                            <h1 class="text-white text-xl font-bold">Equity Derivatives Mock Test System</h1>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="renderSearch()" class="text-white/80 hover:text-white transition">
+                                <i class="fas fa-search mr-2"></i>Search Questions
+                            </button>
+                            <div class="text-white/80 text-sm">
+                                Options, Futures & Structured Products
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-bold text-white mb-4">Select a Test Set</h2>
+                    <p class="text-white/80 text-lg">Choose from 9 different practice test sets for Equity Derivatives</p>
+                </div>
+
+                <div id="eq-sets-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="text-white text-center">Loading test sets...</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    app.innerHTML = setsHtml;
+    loadEquityDerivativesSets();
+}
+
+async function loadEquityDerivativesSets() {
+    const sets = [
+        { id: 10, name: 'EQ Set 1', description: 'Options Pricing Models Set No. 1' },
+        { id: 11, name: 'EQ Set 2', description: 'Options Pricing Models Set No. 2' },
+        { id: 12, name: 'EQ Set 3', description: 'Options Pricing Models Set No. 3' },
+        { id: 13, name: 'EQ Set 4', description: 'Futures & Hedging Strategies Set No. 1' },
+        { id: 14, name: 'EQ Set 5', description: 'Futures & Hedging Strategies Set No. 2' },
+        { id: 15, name: 'EQ Set 6', description: 'Futures & Hedging Strategies Set No. 3' },
+        { id: 16, name: 'EQ Set 7 - Structured Products 1', description: 'Structured Products Set 1' },
+        { id: 17, name: 'EQ Set 8 - Structured Products 2', description: 'Structured Products Set 2' },
+        { id: 18, name: 'EQ Set 9 - Real Feel Timed', description: 'Real Feel Timed Test' }
+    ];
+    
+    const container = document.getElementById('eq-sets-container');
+    
+    if (sets.length === 0) {
+        container.innerHTML = '<div class="text-white text-center col-span-3">No test sets available</div>';
+        return;
+    }
+
+    container.innerHTML = sets.map(set => `
+        <div class="bg-white rounded-xl shadow-lg p-6 card-hover transition-all duration-300 cursor-pointer"
+             onclick="selectEquityDerivativesSet(${set.id})">
+            <div class="flex items-center mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <h3 class="text-lg font-semibold text-gray-800">${set.name}</h3>
+                    <p class="text-sm text-gray-500">${set.description}</p>
+                </div>
+            </div>
+            <div class="flex items-center justify-between mt-4">
+                <span class="text-sm text-gray-600">
+                    <i class="fas fa-clock mr-1"></i> Timed Test
+                </span>
+                <button class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition">
+                    Start Test
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function selectEquityDerivativesSet(setId) {
+    // For now, use a sample of questions from the existing questions.json
+    // In a real implementation, you would have separate questions for Equity Derivatives
+    currentState.selectedSet = setId;
+    currentState.currentCategory = 'EQ';
+    loadSampleEquityDerivativesQuestions(setId);
+}
+
+async function loadSampleEquityDerivativesQuestions(setId) {
+    // Sample Equity Derivatives questions
+    const sampleQuestions = [
+        {
+            id: `eq-${setId}-1`,
+            questionId: 1,
+            setId: setId,
+            question: "What is the primary purpose of an options contract?",
+            options: [
+                "To provide the right to buy or sell an underlying asset at a predetermined price",
+                "To guarantee the delivery of an asset",
+                "To provide leverage without risk",
+                "To eliminate all market risk"
+            ],
+            correctAnswer: 0
+        },
+        {
+            id: `eq-${setId}-2`,
+            questionId: 2,
+            setId: setId,
+            question: "Which of the following is NOT a type of option?",
+            options: [
+                "Call option",
+                "Put option",
+                "Forward option",
+                "Binary option"
+            ],
+            correctAnswer: 2
+        },
+        {
+            id: `eq-${setId}-3`,
+            questionId: 3,
+            setId: setId,
+            question: "The maximum loss for a buyer of a call option is limited to:",
+            options: [
+                "The premium paid",
+                "The strike price",
+                "The underlying asset price",
+                "Unlimited"
+            ],
+            correctAnswer: 0
+        },
+        {
+            id: `eq-${setId}-4`,
+            questionId: 4,
+            setId: setId,
+            question: "What is the 'Greeks' term that measures an option's sensitivity to changes in the underlying asset's price?",
+            options: [
+                "Theta",
+                "Vega",
+                "Delta",
+                "Rho"
+            ],
+            correctAnswer: 2
+        },
+        {
+            id: `eq-${setId}-5`,
+            questionId: 5,
+            setId: setId,
+            question: "A futures contract differs from a forward contract primarily because:",
+            options: [
+                "Futures are traded on exchanges while forwards are OTC",
+                "Forwards are standardized while futures are customized",
+                "Futures have no margin requirements",
+                "Forwards are more liquid than futures"
+            ],
+            correctAnswer: 0
+        }
+    ];
+
+    currentState.questions = shuffleArray(sampleQuestions);
+    currentState.currentQuestion = 0;
+    currentState.answers = [];
+    currentState.timeRemaining = 10800; // 3 hours in seconds
+    currentState.view = 'test';
+    currentState.practiceMode = false;
+    currentState.showInstantSolution = false;
+
+    startTimer();
+    renderTest();
+}
+
 // Render Sets Page (original SORM test selection)
 function renderSets() {
     const setsHtml = `
@@ -335,10 +517,14 @@ function renderSets() {
             <nav class="bg-white/10 backdrop-blur-md border-b border-white/20">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
-                        <div class="flex items-center">
-                            <button onclick="renderHome()" class="text-white/80 hover:text-white transition mr-4">
-                                <i class="fas fa-arrow-left"></i>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="renderHome()" class="text-white/80 hover:text-white transition" title="Go to Home">
+                                <i class="fas fa-home text-xl"></i>
                             </button>
+                            <button onclick="renderHome()" class="text-white/80 hover:text-white transition" title="Back to Home">
+                                <i class="fas fa-arrow-left text-xl"></i>
+                            </button>
+                            <div class="w-px h-6 bg-white/30"></div>
                             <i class="fas fa-graduation-cap text-white text-2xl mr-3"></i>
                             <h1 class="text-white text-xl font-bold">SORM Mock Test System</h1>
                         </div>
@@ -406,6 +592,7 @@ async function loadSets() {
 
 function selectSet(setId) {
     currentState.selectedSet = setId;
+    currentState.currentCategory = 'SORM';
     startTest(setId);
 }
 
@@ -417,7 +604,11 @@ function renderSearch() {
             <nav class="bg-white shadow-md border-b">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
-                        <div class="flex items-center">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="goHome()" class="text-gray-600 hover:text-gray-800 transition" title="Go to Home">
+                                <i class="fas fa-home text-xl"></i>
+                            </button>
+                            <div class="w-px h-6 bg-gray-300"></div>
                             <i class="fas fa-graduation-cap text-purple-600 text-2xl mr-3"></i>
                             <h1 class="text-gray-800 text-xl font-bold">Search Questions</h1>
                         </div>
@@ -631,9 +822,16 @@ function renderTest() {
             <nav class="bg-white shadow-md border-b">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
-                        <div class="flex items-center">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="goHome()" class="text-gray-600 hover:text-gray-800 transition" title="Go to Home">
+                                <i class="fas fa-home text-xl"></i>
+                            </button>
+                            <button onclick="goBackToSets()" class="text-gray-600 hover:text-gray-800 transition" title="Back to Test Sets">
+                                <i class="fas fa-arrow-left text-xl"></i>
+                            </button>
+                            <div class="w-px h-6 bg-gray-300"></div>
                             <i class="fas fa-graduation-cap text-purple-600 text-2xl mr-3"></i>
-                            <h1 class="text-gray-800 text-xl font-bold">SORM Mock Test</h1>
+                            <h1 class="text-gray-800 text-xl font-bold">${currentState.currentCategory === 'EQ' ? 'Equity Derivatives' : 'SORM'} Mock Test</h1>
                         </div>
                         <div class="flex items-center space-x-4">
                             <button onclick="togglePracticeMode()" 
@@ -900,9 +1098,16 @@ function renderResults() {
             <nav class="bg-white shadow-md border-b">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div class="flex justify-between items-center h-16">
-                        <div class="flex items-center">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="goHome()" class="text-gray-600 hover:text-gray-800 transition" title="Go to Home">
+                                <i class="fas fa-home text-xl"></i>
+                            </button>
+                            <button onclick="goBackToSets()" class="text-gray-600 hover:text-gray-800 transition" title="Back to Test Sets">
+                                <i class="fas fa-arrow-left text-xl"></i>
+                            </button>
+                            <div class="w-px h-6 bg-gray-300"></div>
                             <i class="fas fa-graduation-cap text-purple-600 text-2xl mr-3"></i>
-                            <h1 class="text-gray-800 text-xl font-bold">Test Results</h1>
+                            <h1 class="text-gray-800 text-xl font-bold">${currentState.currentCategory === 'EQ' ? 'Equity Derivatives' : 'SORM'} Test Results</h1>
                         </div>
                         <button onclick="goHome()" class="text-purple-600 hover:text-purple-800 font-medium">
                             <i class="fas fa-home mr-2"></i> Back to Home
@@ -969,9 +1174,29 @@ function renderResults() {
     app.innerHTML = resultsHtml;
 }
 
+function goBackToSets() {
+    if (currentState.timerInterval) {
+        clearInterval(currentState.timerInterval);
+    }
+    
+    currentState.view = 'sets';
+    currentState.selectedSet = null;
+    currentState.questions = [];
+    currentState.currentQuestion = 0;
+    currentState.answers = [];
+    currentState.testResults = null;
+    
+    if (currentState.currentCategory === 'EQ') {
+        renderEquityDerivatives();
+    } else {
+        renderSets();
+    }
+}
+
 function goHome() {
     currentState.view = 'home';
     currentState.selectedSet = null;
+    currentState.currentCategory = 'SORM';
     currentState.questions = [];
     currentState.currentQuestion = 0;
     currentState.answers = [];

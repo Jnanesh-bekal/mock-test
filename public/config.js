@@ -30,8 +30,8 @@ window.examConfig = {
             tags: ['Options', 'Futures', 'Pricing'],
             testCount: 9,
             questionCount: 600,
-            available: false,
-            route: null
+            available: true,
+            route: 'renderEquityDerivatives'
         },
         {
             code: 'RA',
