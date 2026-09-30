@@ -1,0 +1,13 @@
+node_modules
+CERTIFICATIONS
+Merchantbanking
+__MACOSX
+extract-workbook-text.js
+generate-explanations.js
+parse-eq-questions.js
+parse-mb-questions.js
+parse-ra-questions.js
+parser.js
+.git
+.env.local
+.env
