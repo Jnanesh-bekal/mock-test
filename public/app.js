@@ -368,10 +368,10 @@ function renderHome() {
                     </div>
                 </div>
 
-                <!-- The 3 Flagship Exam Category Glassmorphic Floating Islands -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 mb-20">
+                <!-- Exam Category Glassmorphic Floating Islands -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
                     ${config.categories.map(category => `
-                        <div class="glass-panel rounded-3xl p-7 sm:p-8 flex flex-col justify-between cursor-pointer relative overflow-hidden group"
+                        <div class="glass-panel rounded-3xl p-6 sm:p-7 flex flex-col justify-between cursor-pointer relative overflow-hidden group"
                              onclick="${category.route}()">
                             <!-- Subtle Top Edge Highlight -->
                             <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent"></div>
@@ -463,6 +463,8 @@ function renderCategorySetsView(categoryCode) {
         displayedSets = sets.filter(s => s.type === 'REVISION');
     } else if (currentState.activeFilter === 'realfeel') {
         displayedSets = sets.filter(s => s.type === 'REAL FEEL');
+    } else if (currentState.activeFilter === 'quiz') {
+        displayedSets = sets.filter(s => s.type === 'QUIZ');
     }
 
     const html = `
@@ -518,18 +520,30 @@ function renderCategorySetsView(categoryCode) {
                             class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${currentState.activeFilter === 'all' ? 'bg-white text-slate-900 shadow-md font-bold' : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/15'}">
                         All Tests (${sets.length})
                     </button>
+                    ${sets.some(s => s.type === 'FULL MOCK') ? `
                     <button onclick="setCategoryFilter('full')" 
                             class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${currentState.activeFilter === 'full' ? 'bg-white text-slate-900 shadow-md font-bold' : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/15'}">
                         Full Mocks (${sets.filter(s => s.type === 'FULL MOCK').length})
                     </button>
+                    ` : ''}
+                    ${sets.some(s => s.type === 'QUIZ') ? `
+                    <button onclick="setCategoryFilter('quiz')" 
+                            class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${currentState.activeFilter === 'quiz' ? 'bg-white text-slate-900 shadow-md font-bold' : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/15'}">
+                        Topic Quizzes (${sets.filter(s => s.type === 'QUIZ').length})
+                    </button>
+                    ` : ''}
+                    ${sets.some(s => s.type === 'REVISION') ? `
                     <button onclick="setCategoryFilter('revision')" 
                             class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${currentState.activeFilter === 'revision' ? 'bg-white text-slate-900 shadow-md font-bold' : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/15'}">
                         Revision (${sets.filter(s => s.type === 'REVISION').length})
                     </button>
+                    ` : ''}
+                    ${sets.some(s => s.type === 'REAL FEEL') ? `
                     <button onclick="setCategoryFilter('realfeel')" 
                             class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${currentState.activeFilter === 'realfeel' ? 'bg-white text-slate-900 shadow-md font-bold' : 'bg-white/10 text-white/80 hover:bg-white/20 border border-white/15'}">
                         Real-Feel (${sets.filter(s => s.type === 'REAL FEEL').length})
                     </button>
+                    ` : ''}
                 </div>
 
                 <!-- Test Cards Grid (Premium Glassmorphic Panels) -->

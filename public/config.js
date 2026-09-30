@@ -8,9 +8,9 @@ window.examConfig = {
         standards: 'SEBI / NISM Compliant'
     },
     stats: {
-        totalTests: 18,
-        totalQuestions: 1200,
-        totalCategories: 3
+        totalTests: 34,
+        totalQuestions: 2300,
+        totalCategories: 4
     },
     floatingCards: [
         {
@@ -112,6 +112,30 @@ window.examConfig = {
                 { id: 25, name: 'RA Set 07 - Revision 1', type: 'REVISION', questions: 50, duration: '60m', description: 'Accounting & Valuation Formulae' },
                 { id: 26, name: 'RA Set 08 - Revision 2', type: 'REVISION', questions: 50, duration: '60m', description: 'Code of Conduct & Compliance Drills' },
                 { id: 27, name: 'RA Set 09 - Real Feel Timed', type: 'REAL FEEL', questions: 100, duration: '120m', description: 'Complete Timed Research Paper' }
+            ]
+        },
+        {
+            code: 'MB',
+            series: 'NISM-Series-IX',
+            title: 'Merchant Banking',
+            subtitle: 'Issue Management & Underwriting',
+            description: 'Master capital market operations, issue management, underwriting, and merchant banking regulations for SEBI certification.',
+            level: 'IX',
+            icon: 'building-columns',
+            iconGradient: 'from-amber-500 to-orange-600',
+            tags: ['Issue Management', 'Underwriting', 'IPO', 'Rights Issue'],
+            testCount: 7,
+            questionCount: 500,
+            available: true,
+            route: 'renderMerchantBanking',
+            sets: [
+                { id: 28, name: 'MB Quiz 01', type: 'QUIZ', questions: 50, duration: '60m', description: 'Merchant Banking Basics & SEBI Regulations' },
+                { id: 29, name: 'MB Quiz 02', type: 'QUIZ', questions: 50, duration: '60m', description: 'Issue Management & Types of Issues' },
+                { id: 30, name: 'MB Quiz 03', type: 'QUIZ', questions: 50, duration: '60m', description: 'Underwriting & Agreements' },
+                { id: 31, name: 'MB Quiz 04', type: 'QUIZ', questions: 50, duration: '60m', description: 'IPO Process & Documentation' },
+                { id: 32, name: 'MB Quiz 05', type: 'FULL MOCK', questions: 100, duration: '120m', description: 'Rights Issue & FPO Procedures' },
+                { id: 33, name: 'MB Quiz 06', type: 'FULL MOCK', questions: 100, duration: '120m', description: 'Merchant Banking Compliance & Code of Conduct' },
+                { id: 34, name: 'MB Quiz 07', type: 'FULL MOCK', questions: 100, duration: '120m', description: 'Comprehensive Merchant Banking Simulation' }
             ]
         }
     ]
