@@ -22,11 +22,35 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR);
 }
 
-// Load questions from file
-let questions = [];
-if (fs.existsSync(QUESTIONS_FILE)) {
-  questions = JSON.parse(fs.readFileSync(QUESTIONS_FILE, 'utf8'));
+// Load questions from all academic files
+function loadAllQuestions() {
+  const files = [
+    path.join(__dirname, 'data', 'questions.json'),
+    path.join(__dirname, 'public', 'data', 'questions.json'),
+    path.join(__dirname, 'public', 'data', 'equity-derivatives-questions.json'),
+    path.join(__dirname, 'public', 'data', 'research-analyst-questions.json'),
+    path.join(__dirname, 'public', 'data', 'merchant-banking-questions.json')
+  ];
+  const questionMap = new Map();
+  files.forEach(filePath => {
+    if (fs.existsSync(filePath)) {
+      try {
+        const list = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        if (Array.isArray(list)) {
+          list.forEach(q => {
+            if (q && q.id) questionMap.set(q.id, q);
+          });
+        }
+      } catch (err) {
+        console.error(`Error loading questions from ${filePath}:`, err);
+      }
+    }
+  });
+  return Array.from(questionMap.values());
 }
+
+let questions = loadAllQuestions();
+console.log(`Initialized database with ${questions.length} total questions across 34 examination sets.`);
 
 // API Routes
 
@@ -41,7 +65,32 @@ app.get('/api/sets', (req, res) => {
     { id: 6, name: 'Set 6', description: 'Practice Questions Set No. 6' },
     { id: 7, name: 'Set 7 - Last Day Revision 1', description: 'Last Day Revision Set 1' },
     { id: 8, name: 'Set 8 - Last Day Revision 2', description: 'Last Day Revision Set 2' },
-    { id: 9, name: 'Set 9 - Real Feel Timed', description: 'Real Feel Timed Test' }
+    { id: 9, name: 'Set 9 - Real Feel Timed', description: 'Real Feel Timed Test' },
+    { id: 10, name: 'EQ Set 1', description: 'Practice Questions Set No. 1' },
+    { id: 11, name: 'EQ Set 2', description: 'Practice Questions Set No. 2' },
+    { id: 12, name: 'EQ Set 3', description: 'Practice Questions Set No. 3' },
+    { id: 13, name: 'EQ Set 4', description: 'Practice Questions Set No. 4' },
+    { id: 14, name: 'EQ Set 5', description: 'Practice Questions Set No. 5' },
+    { id: 15, name: 'EQ Set 6', description: 'Practice Questions Set No. 6' },
+    { id: 16, name: 'EQ Set 7 - Last Day Revision 1', description: 'Last Day Revision Set 1' },
+    { id: 17, name: 'EQ Set 8 - Last Day Revision 2', description: 'Last Day Revision Set 2' },
+    { id: 18, name: 'EQ Set 9 - Real Feel Timed', description: 'Real Feel Timed Test' },
+    { id: 19, name: 'RA Practice Set 1', description: 'Practice Questions Set No. 1' },
+    { id: 20, name: 'RA Practice Set 2', description: 'Practice Questions Set No. 2' },
+    { id: 21, name: 'RA Practice Set 3', description: 'Practice Questions Set No. 3' },
+    { id: 22, name: 'RA Practice Set 4', description: 'Practice Questions Set No. 4' },
+    { id: 23, name: 'RA Practice Set 5', description: 'Practice Questions Set No. 5' },
+    { id: 24, name: 'RA Practice Set 6', description: 'Practice Questions Set No. 6' },
+    { id: 25, name: 'RA Revision Test 1', description: 'Revision Test 1' },
+    { id: 26, name: 'RA Revision Test 2', description: 'Revision Test 2' },
+    { id: 27, name: 'RA Real Feel Test', description: 'Real Feel Timed Test' },
+    { id: 28, name: 'MB Quiz 1', description: 'Merchant Banking Quiz 1' },
+    { id: 29, name: 'MB Quiz 2', description: 'Merchant Banking Quiz 2' },
+    { id: 30, name: 'MB Quiz 3', description: 'Merchant Banking Quiz 3' },
+    { id: 31, name: 'MB Quiz 4', description: 'Merchant Banking Quiz 4' },
+    { id: 32, name: 'MB Quiz 5', description: 'Merchant Banking Quiz 5' },
+    { id: 33, name: 'MB Quiz 6', description: 'Merchant Banking Quiz 6' },
+    { id: 34, name: 'MB Quiz 7', description: 'Merchant Banking Quiz 7' }
   ];
   res.json(sets);
 });
@@ -62,10 +111,35 @@ app.get('/api/search', (req, res) => {
   }
 
   const searchTerm = query.toLowerCase();
-  let filteredQuestions = questions;
+  let allQuestions = [...questions];
+
+  // Load additional question files if needed
+  try {
+    const eqQuestionsPath = path.join(__dirname, 'public', 'data', 'equity-derivatives-questions.json');
+    if (fs.existsSync(eqQuestionsPath)) {
+      const eqQuestions = JSON.parse(fs.readFileSync(eqQuestionsPath, 'utf8'));
+      allQuestions = [...allQuestions, ...eqQuestions];
+    }
+
+    const raQuestionsPath = path.join(__dirname, 'public', 'data', 'research-analyst-questions.json');
+    if (fs.existsSync(raQuestionsPath)) {
+      const raQuestions = JSON.parse(fs.readFileSync(raQuestionsPath, 'utf8'));
+      allQuestions = [...allQuestions, ...raQuestions];
+    }
+
+    const mbQuestionsPath = path.join(__dirname, 'public', 'data', 'merchant-banking-questions.json');
+    if (fs.existsSync(mbQuestionsPath)) {
+      const mbQuestions = JSON.parse(fs.readFileSync(mbQuestionsPath, 'utf8'));
+      allQuestions = [...allQuestions, ...mbQuestions];
+    }
+  } catch (error) {
+    console.error('Error loading additional question files:', error);
+  }
+
+  let filteredQuestions = allQuestions;
 
   if (setId) {
-    filteredQuestions = questions.filter(q => q.setId === parseInt(setId));
+    filteredQuestions = allQuestions.filter(q => q.setId === parseInt(setId));
   }
 
   const results = filteredQuestions.filter(q => 
@@ -88,9 +162,25 @@ app.get('/api/question/:id', (req, res) => {
   res.json(question);
 });
 
-// Get all questions
+// Get all questions (with optional search and setId query filters)
 app.get('/api/questions', (req, res) => {
-  res.json(questions);
+  let filtered = questions;
+  const { search, setId } = req.query;
+
+  if (setId) {
+    filtered = filtered.filter(q => q.setId === parseInt(setId));
+  }
+
+  if (search) {
+    const qLower = search.toLowerCase();
+    filtered = filtered.filter(q => {
+      return (q.question && q.question.toLowerCase().includes(qLower)) ||
+        (q.options && q.options.some(opt => opt && opt.toLowerCase().includes(qLower))) ||
+        (q.explanation && q.explanation.toLowerCase().includes(qLower));
+    });
+  }
+
+  res.json(filtered);
 });
 
 // Submit test answers

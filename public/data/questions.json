@@ -9,7 +9,8 @@
       "Clearing Banks",
       "Stock Exchanges"
     ],
-    "correctAnswer": 1
+    "correctAnswer": 1,
+    "explanation": "Cash obligations related to transactions executed on a stock exchange are settled by Clearing Banks. Clearing banks are responsible for the actual settlement of funds between trading participants, ensuring that the cash obligations arising from trades are properly fulfilled."
   },
   {
     "id": "1-2",
@@ -22,7 +23,8 @@
       "Rs 25 Lacs",
       "Rs 100 Lacs"
     ],
-    "correctAnswer": 1
+    "correctAnswer": 1,
+    "explanation": "The Base Minimum Capital requirement for all trading members/brokers with Algo as specified by SEBI is Rs 10 Lacs. This capital requirement ensures that trading members have sufficient financial resources to meet their obligations and maintain market integrity."
   },
   {
     "id": "1-3",

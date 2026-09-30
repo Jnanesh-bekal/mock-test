@@ -10,7 +10,8 @@
       "Neither buyers nor sellers",
       "Only arbitrageurs"
     ],
-    "correctAnswer": 2
+    "correctAnswer": 2,
+    "explanation": "Impact cost represents the cost incurred by buyers and sellers when executing transactions due to lack of market liquidity. High impact cost increases the purchasing price for buyers and decreases the selling price for sellers, making it detrimental to both parties. Therefore, high impact cost is neither beneficial to buyers nor sellers."
   },
   {
     "id": "eq-10-2",
@@ -23,7 +24,8 @@
       "Higher the volatility, higher the initial margin",
       "None of the above"
     ],
-    "correctAnswer": 2
+    "correctAnswer": 2,
+    "explanation": "Initial margin requirements in derivatives are designed to protect against default risk. When markets are highly volatile, there's a higher risk of significant price movements that could lead to larger losses. To safeguard trading members and traders, higher initial margins are levied when volatility is high. Therefore, higher volatility leads to higher initial margin requirements."
   },
   {
     "id": "eq-10-3",
@@ -36,7 +38,8 @@
       "Delta",
       "Vega"
     ],
-    "correctAnswer": 3
+    "correctAnswer": 3,
+    "explanation": "Vega (ν) is one of the Greeks in options pricing that measures the sensitivity of an option's price to changes in the volatility of the underlying asset. It represents the change in option premium for a unit change in volatility. Delta measures price sensitivity to underlying price changes, Theta measures time decay, and Rho measures sensitivity to interest rate changes."
   },
   {
     "id": "eq-10-4",
@@ -47,7 +50,8 @@
       "True",
       "False"
     ],
-    "correctAnswer": 0
+    "correctAnswer": 0,
+    "explanation": "In a derivatives exchange, clearing members have higher networth requirements than non-clearing members because they bear additional responsibilities and risks. Clearing members act as intermediaries in the clearing and settlement process, guaranteeing trades and managing counterparty risk. This requires them to maintain higher capital adequacy."
   },
   {
     "id": "eq-10-5",
@@ -60,7 +64,8 @@
       "Credit Risk",
       "Operational Risk"
     ],
-    "correctAnswer": 0
+    "correctAnswer": 0,
+    "explanation": "Clearing members in derivatives exchanges have higher networth requirements than non-clearing members because they bear additional responsibilities including guaranteeing trades, managing counterparty risk, and maintaining the settlement guarantee fund. This requires them to maintain higher capital adequacy to ensure financial stability."
   },
   {
     "id": "eq-10-6",

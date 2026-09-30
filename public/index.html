@@ -1,64 +1,175 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ExamForge - Professional Certification Prep</title>
+    <title>Gipsy Forge — Professional Certification Prep</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS with CDN Configuration -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        mono: ['JetBrains Mono', 'Courier New', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            200: '#bfdbfe',
+                            300: '#93c5fd',
+                            400: '#60a5fa',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                            950: '#172554',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap');
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: #1d4ed8;
+            color: #0f172a;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        .card-hover:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-        }
-        .timer-warning {
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
+
+        /* Original Illustrated Blue World Background */
         .hero-bg {
             background-image: url('hero-bg.png');
             background-size: cover;
-            background-position: center;
+            background-position: center top;
             background-repeat: no-repeat;
+            background-color: #1d4ed8;
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+
+        /* Subpage Gradient Environment */
+        .gradient-subpage-bg {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 40%, #0369a1 80%, #0f172a 100%);
         }
-        .floating-card {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+        /* Premium Floating Island Glass Panel */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.22);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 0 16px 40px -10px rgba(0, 32, 96, 0.12), 0 1px 0 0 rgba(255, 255, 255, 0.5) inset;
+            border-radius: 24px;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .mono-label {
-            font-family: 'Courier New', monospace;
-            font-size: 0.75rem;
-            letter-spacing: 0.05em;
+
+        .glass-panel:hover {
+            background: rgba(255, 255, 255, 0.28);
+            border-color: rgba(255, 255, 255, 0.65);
+            transform: translateY(-4px);
+            box-shadow: 0 24px 50px -12px rgba(0, 32, 96, 0.2), 0 1px 0 0 rgba(255, 255, 255, 0.7) inset;
         }
-        .wordmark {
-            font-family: 'Playfair Display', serif;
+
+        /* Floating Nav Glass Pill */
+        .nav-pill-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 10px 30px -5px rgba(0, 32, 96, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.5);
         }
-        .nav-pill {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+
+        /* Floating Hero Notification Badges */
+        .glass-float-badge {
+            background: rgba(255, 255, 255, 0.32);
+            backdrop-filter: blur(20px) saturate(170%);
+            -webkit-backdrop-filter: blur(20px) saturate(170%);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            box-shadow: 0 10px 25px -5px rgba(0, 32, 96, 0.12), 0 1px 0 0 rgba(255, 255, 255, 0.4) inset;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-float-badge:hover {
+            transform: translateY(-2px) scale(1.02);
+            background: rgba(255, 255, 255, 0.42);
+            border-color: rgba(255, 255, 255, 0.75);
+            box-shadow: 0 16px 32px -6px rgba(0, 32, 96, 0.18);
+        }
+
+        /* Frosted Statistic Cards */
+        .glass-stat-card {
+            background: rgba(255, 255, 255, 0.26);
+            backdrop-filter: blur(20px) saturate(160%);
+            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 24px -4px rgba(0, 32, 96, 0.08), 0 1px 0 0 rgba(255, 255, 255, 0.4) inset;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-stat-card:hover {
+            background: rgba(255, 255, 255, 0.34);
+            border-color: rgba(255, 255, 255, 0.65);
+            transform: translateY(-2px);
+        }
+
+        /* Subtle Float Animation */
+        @keyframes gentle-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+        .animate-float-1 {
+            animation: gentle-float 4.5s ease-in-out infinite;
+        }
+        .animate-float-2 {
+            animation: gentle-float 5.2s ease-in-out infinite 0.7s;
+        }
+        .animate-float-3 {
+            animation: gentle-float 4.8s ease-in-out infinite 1.4s;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.45);
+        }
+
+        /* Option card on test stage */
+        .option-card {
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .option-card:hover {
+            border-color: #2563eb;
+            background: rgba(37, 99, 235, 0.04);
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="selection:bg-blue-600 selection:text-white">
     <div id="app"></div>
+    
     <script src="config.js"></script>
     <script src="app.js"></script>
 </body>

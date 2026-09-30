@@ -1,4 +1,10 @@
 node_modules
 .env
+.env.local
+.vercel
 .DS_Store
 *.log
+__MACOSX/
+CERTIFICATIONS/
+Merchantbanking/
+
