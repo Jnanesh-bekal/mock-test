@@ -24,7 +24,7 @@ if (!fs.existsSync(DATA_DIR)) {
 
 const questionsHelper = require('./data/questionsHelper');
 let questions = questionsHelper.getAllQuestions();
-console.log(`Initialized database with ${questions.length} total questions across 34 examination sets.`);
+console.log(`Initialized database with ${questions.length} total questions across 43 examination sets.`);
 
 // API Routes
 
@@ -64,7 +64,16 @@ app.get('/api/sets', (req, res) => {
     { id: 31, name: 'MB Quiz 4', description: 'Merchant Banking Quiz 4' },
     { id: 32, name: 'MB Quiz 5', description: 'Merchant Banking Quiz 5' },
     { id: 33, name: 'MB Quiz 6', description: 'Merchant Banking Quiz 6' },
-    { id: 34, name: 'MB Quiz 7', description: 'Merchant Banking Quiz 7' }
+    { id: 34, name: 'MB Quiz 7', description: 'Merchant Banking Quiz 7' },
+    { id: 35, name: 'MFD Quiz 1', description: 'Concept and Role of a Mutual Fund' },
+    { id: 36, name: 'MFD Quiz 2', description: 'Fund Structure, Constituents & Legal Framework' },
+    { id: 37, name: 'MFD Quiz 3', description: 'Offer Documents & Regulatory Guidelines' },
+    { id: 38, name: 'MFD Quiz 4', description: 'Fund Distribution, Practices & Channel Dynamics' },
+    { id: 39, name: 'MFD Quiz 5', description: 'Net Asset Value, Total Expense Ratio & Accounting' },
+    { id: 40, name: 'MFD Revision 1', description: 'Taxation, Return Measurement & Performance Evaluation' },
+    { id: 41, name: 'MFD Revision 2', description: 'Scheme Selection, Investor Services & Financial Planning' },
+    { id: 42, name: 'MFD Revision 3', description: 'Rapid High-Yield Operational & Compliance Drills' },
+    { id: 43, name: 'MFD Real Feel Mock', description: 'Full Simulation Paper - NISM Series V-A Certification' }
   ];
   res.json(sets);
 });
@@ -72,7 +81,7 @@ app.get('/api/sets', (req, res) => {
 // Get questions by set
 app.get('/api/questions/:setId', (req, res) => {
   const setId = parseInt(req.params.setId);
-  const setQuestions = questions.filter(q => q.setId === setId);
+  const setQuestions = questionsHelper.getQuestionsBySetId(setId);
   res.json(setQuestions);
 });
 
@@ -85,35 +94,10 @@ app.get('/api/search', (req, res) => {
   }
 
   const searchTerm = query.toLowerCase();
-  let allQuestions = [...questions];
-
-  // Load additional question files if needed
-  try {
-    const eqQuestionsPath = path.join(__dirname, 'public', 'data', 'equity-derivatives-questions.json');
-    if (fs.existsSync(eqQuestionsPath)) {
-      const eqQuestions = JSON.parse(fs.readFileSync(eqQuestionsPath, 'utf8'));
-      allQuestions = [...allQuestions, ...eqQuestions];
-    }
-
-    const raQuestionsPath = path.join(__dirname, 'public', 'data', 'research-analyst-questions.json');
-    if (fs.existsSync(raQuestionsPath)) {
-      const raQuestions = JSON.parse(fs.readFileSync(raQuestionsPath, 'utf8'));
-      allQuestions = [...allQuestions, ...raQuestions];
-    }
-
-    const mbQuestionsPath = path.join(__dirname, 'public', 'data', 'merchant-banking-questions.json');
-    if (fs.existsSync(mbQuestionsPath)) {
-      const mbQuestions = JSON.parse(fs.readFileSync(mbQuestionsPath, 'utf8'));
-      allQuestions = [...allQuestions, ...mbQuestions];
-    }
-  } catch (error) {
-    console.error('Error loading additional question files:', error);
-  }
-
-  let filteredQuestions = allQuestions;
+  let filteredQuestions = questions;
 
   if (setId) {
-    filteredQuestions = allQuestions.filter(q => q.setId === parseInt(setId));
+    filteredQuestions = questions.filter(q => q.setId === parseInt(setId));
   }
 
   const results = filteredQuestions.filter(q => 

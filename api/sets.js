@@ -52,7 +52,18 @@ module.exports = (req, res) => {
     { id: 31, name: 'MB Quiz 04', type: 'QUIZ', category: 'MB', questions: 50, duration: '60m', description: 'IPO Process & Documentation' },
     { id: 32, name: 'MB Quiz 05', type: 'FULL MOCK', category: 'MB', questions: 100, duration: '120m', description: 'Rights Issue & FPO Procedures' },
     { id: 33, name: 'MB Quiz 06', type: 'FULL MOCK', category: 'MB', questions: 100, duration: '120m', description: 'Merchant Banking Compliance & Code of Conduct' },
-    { id: 34, name: 'MB Quiz 07', type: 'FULL MOCK', category: 'MB', questions: 100, duration: '120m', description: 'Comprehensive Merchant Banking Simulation' }
+    { id: 34, name: 'MB Quiz 07', type: 'FULL MOCK', category: 'MB', questions: 100, duration: '120m', description: 'Comprehensive Merchant Banking Simulation' },
+
+    // Mutual Fund Distributors Sets (35 - 43)
+    { id: 35, name: 'MFD Quiz 01', type: 'QUIZ', category: 'MFD', questions: 50, duration: '60m', description: 'Concept and Role of a Mutual Fund' },
+    { id: 36, name: 'MFD Quiz 02', type: 'QUIZ', category: 'MFD', questions: 50, duration: '60m', description: 'Fund Structure, Constituents & Legal Framework' },
+    { id: 37, name: 'MFD Quiz 03', type: 'QUIZ', category: 'MFD', questions: 50, duration: '60m', description: 'Offer Documents & Regulatory Guidelines' },
+    { id: 38, name: 'MFD Quiz 04', type: 'QUIZ', category: 'MFD', questions: 50, duration: '60m', description: 'Fund Distribution, Practices & Channel Dynamics' },
+    { id: 39, name: 'MFD Quiz 05', type: 'QUIZ', category: 'MFD', questions: 50, duration: '60m', description: 'Net Asset Value, Total Expense Ratio & Accounting' },
+    { id: 40, name: 'MFD Revision 01', type: 'REVISION', category: 'MFD', questions: 100, duration: '120m', description: 'Taxation, Return Measurement & Performance Evaluation' },
+    { id: 41, name: 'MFD Revision 02', type: 'REVISION', category: 'MFD', questions: 100, duration: '120m', description: 'Scheme Selection, Investor Services & Financial Planning' },
+    { id: 42, name: 'MFD Revision 03', type: 'REVISION', category: 'MFD', questions: 100, duration: '120m', description: 'Rapid High-Yield Operational & Compliance Drills' },
+    { id: 43, name: 'MFD Real Feel Full Mock', type: 'REAL FEEL', category: 'MFD', questions: 100, duration: '120m', description: 'Full Simulation Paper - NISM Series V-A Certification' }
   ];
   
   res.status(200).json(sets);

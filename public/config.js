@@ -8,9 +8,9 @@ window.examConfig = {
         standards: 'SEBI / NISM Compliant'
     },
     stats: {
-        totalTests: 34,
-        totalQuestions: 2300,
-        totalCategories: 4
+        totalTests: 43,
+        totalQuestions: 2950,
+        totalCategories: 5
     },
     floatingCards: [
         {
@@ -136,6 +136,32 @@ window.examConfig = {
                 { id: 32, name: 'MB Quiz 05', type: 'FULL MOCK', questions: 100, duration: '120m', description: 'Rights Issue & FPO Procedures' },
                 { id: 33, name: 'MB Quiz 06', type: 'FULL MOCK', questions: 100, duration: '120m', description: 'Merchant Banking Compliance & Code of Conduct' },
                 { id: 34, name: 'MB Quiz 07', type: 'FULL MOCK', questions: 100, duration: '120m', description: 'Comprehensive Merchant Banking Simulation' }
+            ]
+        },
+        {
+            code: 'MFD',
+            series: 'NISM-Series-V-A',
+            title: 'Mutual Fund Distributors',
+            subtitle: 'Products, NAV Mechanics & Advisory Regulations',
+            description: 'Master mutual fund schemes, NAV computation, Total Expense Ratio, AMFI code of conduct, and SEBI regulations for distributor certification.',
+            level: 'V-A',
+            icon: 'piggy-bank',
+            iconGradient: 'from-violet-500 to-purple-600',
+            tags: ['Mutual Funds', 'NAV', 'SIP', 'AMFI', 'ELSS', 'TER'],
+            testCount: 9,
+            questionCount: 650,
+            available: true,
+            route: 'renderMutualFunds',
+            sets: [
+                { id: 35, name: 'MFD Quiz 01', type: 'QUIZ', questions: 50, duration: '60m', description: 'Concept and Role of a Mutual Fund' },
+                { id: 36, name: 'MFD Quiz 02', type: 'QUIZ', questions: 50, duration: '60m', description: 'Fund Structure, Constituents & Legal Framework' },
+                { id: 37, name: 'MFD Quiz 03', type: 'QUIZ', questions: 50, duration: '60m', description: 'Offer Documents & Regulatory Guidelines' },
+                { id: 38, name: 'MFD Quiz 04', type: 'QUIZ', questions: 50, duration: '60m', description: 'Fund Distribution, Practices & Channel Dynamics' },
+                { id: 39, name: 'MFD Quiz 05', type: 'QUIZ', questions: 50, duration: '60m', description: 'Net Asset Value, Total Expense Ratio & Accounting' },
+                { id: 40, name: 'MFD Revision 01', type: 'REVISION', questions: 100, duration: '120m', description: 'Taxation, Return Measurement & Performance Evaluation' },
+                { id: 41, name: 'MFD Revision 02', type: 'REVISION', questions: 100, duration: '120m', description: 'Scheme Selection, Investor Services & Financial Planning' },
+                { id: 42, name: 'MFD Revision 03', type: 'REVISION', questions: 100, duration: '120m', description: 'Rapid High-Yield Operational & Compliance Drills' },
+                { id: 43, name: 'MFD Real Feel Full Mock', type: 'REAL FEEL', questions: 100, duration: '120m', description: 'Full Simulation Paper - NISM Series V-A Certification' }
             ]
         }
     ]

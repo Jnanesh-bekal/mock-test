@@ -96,6 +96,8 @@ async function fetchQuestions(setId) {
         file = '/data/research-analyst-questions.json';
     } else if (currentState.currentCategory === 'MB' || (setId >= 28 && setId <= 34)) {
         file = '/data/merchant-banking-questions.json';
+    } else if (currentState.currentCategory === 'MFD' || (setId >= 35 && setId <= 43)) {
+        file = '/data/mutual-funds-questions.json';
     }
 
     try {
@@ -202,7 +204,13 @@ async function searchQuestions(query, setId = null) {
     }
 
     let allQuestions = [];
-    const files = ['/data/questions.json', '/data/equity-derivatives-questions.json', '/data/research-analyst-questions.json', '/data/merchant-banking-questions.json'];
+    const files = [
+        '/data/questions.json',
+        '/data/equity-derivatives-questions.json',
+        '/data/research-analyst-questions.json',
+        '/data/merchant-banking-questions.json',
+        '/data/mutual-funds-questions.json'
+    ];
     for (const f of files) {
         try {
             const res = await fetch(f);
@@ -391,7 +399,7 @@ function renderHome() {
                 </div>
 
                 <!-- Exam Category Glassmorphic Floating Islands -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
                     ${config.categories.map(category => `
                         <div class="glass-panel rounded-3xl p-6 sm:p-7 flex flex-col justify-between cursor-pointer relative overflow-hidden group"
                              onclick="${category.route}()">
@@ -648,6 +656,10 @@ function renderMerchantBanking() {
     renderCategorySetsView('MB');
 }
 
+function renderMutualFunds() {
+    renderCategorySetsView('MFD');
+}
+
 function selectEquityDerivativesSet(setId) {
     selectSet(setId);
 }
@@ -657,6 +669,10 @@ function selectResearchAnalystSet(setId) {
 }
 
 function selectMerchantBankingSet(setId) {
+    selectSet(setId);
+}
+
+function selectMutualFundsSet(setId) {
     selectSet(setId);
 }
 
@@ -782,7 +798,7 @@ function renderTest() {
                         </button>
                         <div class="w-px h-4 bg-white/20"></div>
                         <div>
-                            <span class="font-serif text-base sm:text-lg text-white font-bold">Set 0${currentState.selectedSet}</span>
+                            <span class="font-serif text-base sm:text-lg text-white font-bold">Set ${currentState.selectedSet < 10 ? '0' : ''}${currentState.selectedSet}</span>
                             <span class="font-mono text-[10px] text-blue-300 ml-2 uppercase font-semibold">${cat.title}</span>
                         </div>
                     </div>
@@ -1075,7 +1091,7 @@ function renderResults() {
                 <!-- Score Card -->
                 <div class="bg-white/95 text-slate-900 rounded-3xl p-8 sm:p-12 shadow-2xl border border-white/40 mb-10 text-center relative overflow-hidden backdrop-blur-md">
                     <div class="font-mono text-xs uppercase tracking-widest text-blue-600 font-bold mb-3">
-                        ${cat.series} · SET 0${currentState.selectedSet}
+                        ${cat.series} · SET ${currentState.selectedSet < 10 ? '0' : ''}${currentState.selectedSet}
                     </div>
 
                     <h1 class="font-serif text-3xl sm:text-5xl font-bold mb-4 ${isPassed ? 'text-emerald-700' : 'text-amber-700'}">
@@ -1299,7 +1315,7 @@ async function performSearch() {
         <div class="bg-white/95 text-slate-900 rounded-2xl p-6 shadow-lg border border-white/40 hover:border-blue-500 transition-all">
             <div class="flex items-center justify-between mb-4">
                 <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono tracking-widest uppercase bg-blue-50 text-blue-700 border border-blue-200 font-bold">
-                    Set 0${q.setId} · Question ${q.questionId || q.id}
+                    Set ${q.setId < 10 ? '0' : ''}${q.setId} · Question ${q.questionId || q.id}
                 </span>
                 <button onclick="showSolution('${q.id}')" 
                         class="text-xs font-mono text-blue-600 hover:text-blue-800 font-bold flex items-center gap-1.5">
@@ -1494,7 +1510,7 @@ function renderModalContent() {
 
     if (currentState.modalOpen === 'analytics') {
         const completedCount = Object.keys(userStorage.completedSets || {}).length;
-        const totalTests = 18;
+        const totalTests = (window.examConfig && window.examConfig.stats && window.examConfig.stats.totalTests) || 43;
         const avgAccuracy = userStorage.telemetry?.accuracy || 72;
 
         return `
@@ -1594,8 +1610,8 @@ function renderModalContent() {
                     <div class="space-y-4 mb-8">
                         <div class="p-5 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-between">
                             <div>
-                                <div class="font-bold text-slate-900">Active Curriculum: SORM</div>
-                                <div class="text-xs text-slate-600">NISM-Series-XII Regulatory Certification</div>
+                                <div class="font-bold text-slate-900">Active Curriculum: ${cat.title}</div>
+                                <div class="text-xs text-slate-600">${cat.series} Regulatory Certification</div>
                             </div>
                             <span class="text-xs font-mono font-bold text-blue-800 bg-blue-200 px-3 py-1 rounded-full">ACTIVE</span>
                         </div>
@@ -1612,7 +1628,7 @@ function renderModalContent() {
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
-                        <button onclick="closeModal(); renderSets()" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl text-xs font-bold uppercase tracking-wider shadow-md">
+                        <button onclick="closeModal(); renderCategorySetsView(currentState.currentCategory)" class="bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl text-xs font-bold uppercase tracking-wider shadow-md">
                             Continue Tests
                         </button>
                         <button onclick="closeModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 py-3 rounded-2xl text-xs font-bold uppercase tracking-wider">
