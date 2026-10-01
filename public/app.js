@@ -51,6 +51,7 @@ const currentState = {
     practiceMode: false,
     showInstantSolution: false,
     testResults: null,
+    resultFilter: 'all',
     modalOpen: null,
     userStorage: getUserStorage(),
     searchResults: []
@@ -75,7 +76,10 @@ function shuffleArray(array) {
 // Data Fetching
 async function fetchQuestions(setId) {
     try {
-        const response = await fetch(`${API_BASE}/questions/${setId}`);
+        let response = await fetch(`${API_BASE}/questions?setId=${setId}`);
+        if (!response.ok) {
+            response = await fetch(`${API_BASE}/questions/${setId}`);
+        }
         if (response.ok) {
             const data = await response.json();
             if (Array.isArray(data) && data.length > 0) return data;
@@ -105,68 +109,86 @@ async function fetchQuestions(setId) {
     }
 }
 
-async function submitTest(answers, setId) {
-    try {
-        const response = await fetch(`${API_BASE}/submit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ answers, setId })
-        });
-        if (response.ok) {
-            const data = await response.json();
-            if (data.results) {
-                data.results = data.results.map(result => {
-                    const question = currentState.questions.find(q => q.id === result.questionId);
-                    if (question) {
-                        return {
-                            ...result,
-                            questionText: question.question,
-                            options: question.options,
-                            explanation: question.explanation
-                        };
-                    }
-                    return result;
-                });
-            }
-            return data;
-        }
-    } catch (e) {
-        console.warn('API submission failed, calculating client-side score:', e);
-    }
-
-    // Client-side scoring fallback
-    let correct = 0;
-    let wrong = 0;
-    const results = [];
-
-    answers.forEach(ans => {
-        const q = currentState.questions.find(item => item.id === ans.questionId);
-        if (q) {
-            const isCorrect = q.correctAnswer === ans.selectedAnswer;
-            if (isCorrect) correct++;
-            else wrong++;
-            results.push({
-                questionId: ans.questionId,
-                selectedAnswer: ans.selectedAnswer,
-                correctAnswer: q.correctAnswer,
-                isCorrect,
-                questionText: q.question,
-                options: q.options,
-                explanation: q.explanation
-            });
+// Comprehensive test evaluation engine
+function buildTestResults(answers, totalCount, apiData = null) {
+    const total = Number(totalCount) || (currentState.questions && currentState.questions.length) || (answers ? answers.length : 1);
+    const answerMap = new Map();
+    (answers || []).forEach(a => {
+        if (a && a.questionId !== undefined) {
+            answerMap.set(String(a.questionId), a.selectedAnswer);
         }
     });
 
-    const total = answers.length || 1;
-    const percentage = Math.round((correct / total) * 100);
+    let correct = 0;
+    let wrong = 0;
+
+    // Use currentState.questions to maintain the candidate's exact examination sequence
+    const questionsList = (currentState.questions && currentState.questions.length > 0)
+        ? currentState.questions
+        : (apiData && apiData.results ? apiData.results : []);
+
+    const detailedResults = questionsList.map((q, idx) => {
+        const qId = String(q.id || q.questionId);
+        const hasAnswered = answerMap.has(qId);
+        const selected = hasAnswered ? answerMap.get(qId) : null;
+        const isCorrect = hasAnswered && Number(selected) === Number(q.correctAnswer);
+        const isUnanswered = !hasAnswered;
+
+        if (hasAnswered) {
+            if (isCorrect) correct++;
+            else wrong++;
+        }
+
+        return {
+            index: idx,
+            questionId: qId,
+            selectedAnswer: selected,
+            correctAnswer: q.correctAnswer,
+            isCorrect,
+            isUnanswered,
+            questionText: q.question || q.questionText || `Question ${idx + 1}`,
+            options: q.options || [],
+            explanation: q.explanation || ''
+        };
+    });
+
+    const unanswered = Math.max(0, total - (correct + wrong));
+    const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
     return {
         total,
         correct,
         wrong,
+        unanswered,
         percentage,
-        results
+        results: detailedResults
     };
+}
+
+async function submitTest(answers, setId) {
+    const totalQuestions = (currentState.questions && currentState.questions.length) || (answers ? answers.length : 0);
+    
+    // Build direct baseline results using active examination session
+    const clientResults = buildTestResults(answers, totalQuestions);
+
+    try {
+        const response = await fetch(`${API_BASE}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ answers, setId, totalQuestions })
+        });
+        if (response.ok) {
+            const data = await response.json();
+            // Validate API returned valid evaluation results
+            if (data && typeof data.correct === 'number' && (answers.length === 0 || (data.results && data.results.length > 0))) {
+                return buildTestResults(answers, totalQuestions, data);
+            }
+        }
+    } catch (e) {
+        console.warn('API submission failed or offline, using robust client evaluation:', e);
+    }
+
+    return clientResults;
 }
 
 async function searchQuestions(query, setId = null) {
@@ -978,6 +1000,7 @@ async function submitTestAnswers() {
 
     const results = await submitTest(currentState.answers, currentState.selectedSet);
     currentState.testResults = results;
+    currentState.resultFilter = 'all';
 
     // Save completed set in localStorage
     if (!currentState.userStorage.completedSets) currentState.userStorage.completedSets = {};
@@ -985,11 +1008,17 @@ async function submitTestAnswers() {
         score: results.percentage,
         correct: results.correct,
         wrong: results.wrong,
+        unanswered: results.unanswered,
         total: results.total,
         date: new Date().toISOString().split('T')[0]
     };
     saveUserStorage(currentState.userStorage);
 
+    renderResults();
+}
+
+function setResultFilter(filter) {
+    currentState.resultFilter = filter;
     renderResults();
 }
 
@@ -1006,6 +1035,19 @@ function renderResults() {
     const percentage = results.percentage;
     const isPassed = percentage >= 60;
     const cat = window.examConfig.categories.find(c => c.code === currentState.currentCategory) || window.examConfig.categories[0];
+    const currentFilter = currentState.resultFilter || 'all';
+
+    const unansweredCount = typeof results.unanswered === 'number'
+        ? results.unanswered
+        : Math.max(0, results.total - results.correct - results.wrong);
+
+    const allItems = results.results || [];
+    const filteredItems = allItems.filter(item => {
+        if (currentFilter === 'correct') return item.isCorrect;
+        if (currentFilter === 'wrong') return !item.isCorrect && !item.isUnanswered;
+        if (currentFilter === 'unanswered') return item.isUnanswered;
+        return true;
+    });
 
     const resultsHtml = `
         <div class="min-h-screen gradient-subpage-bg text-white pb-20 selection:bg-blue-500 selection:text-white">
@@ -1061,7 +1103,7 @@ function renderResults() {
                             <span class="text-slate-600 uppercase font-semibold">Incorrect</span>
                         </div>
                         <div class="p-4 rounded-2xl bg-slate-100 border border-slate-200">
-                            <span class="text-slate-800 text-2xl font-bold block mb-1">${results.total - results.correct - results.wrong}</span>
+                            <span class="text-slate-800 text-2xl font-bold block mb-1">${unansweredCount}</span>
                             <span class="text-slate-600 uppercase font-semibold">Unanswered</span>
                         </div>
                     </div>
@@ -1069,44 +1111,93 @@ function renderResults() {
 
                 <!-- Detailed Question Review Section -->
                 <div class="space-y-6">
-                    <h3 class="font-serif text-2xl font-bold text-white mb-6">Detailed Answer Rationale Review</h3>
-                    
-                    ${results.results && results.results.length > 0 ? results.results.map((item, idx) => `
-                        <div class="bg-white/95 text-slate-900 rounded-2xl p-6 shadow-md border ${item.isCorrect ? 'border-emerald-300' : 'border-red-300'}">
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="font-mono text-xs font-bold ${item.isCorrect ? 'text-emerald-700' : 'text-red-600'}">
-                                    Question ${idx + 1} · ${item.isCorrect ? 'Correct (+1.0)' : 'Incorrect (-0.25)'}
-                                </span>
-                                <span class="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold ${item.isCorrect ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-                                    ${item.isCorrect ? 'PASSED' : 'MISSED'}
-                                </span>
-                            </div>
-
-                            <h4 class="font-serif text-lg font-bold text-slate-900 mb-4">${item.questionText || 'Question item'}</h4>
-
-                            <div class="space-y-2 mb-4 text-xs font-mono">
-                                ${item.options ? item.options.map((opt, optIdx) => {
-                                    let cls = 'bg-slate-50 border-slate-200 text-slate-700';
-                                    if (optIdx === item.correctAnswer) cls = 'bg-emerald-100 border-emerald-400 text-emerald-950 font-bold';
-                                    else if (optIdx === item.selectedAnswer && !item.isCorrect) cls = 'bg-red-100 border-red-400 text-red-950';
-                                    return `
-                                        <div class="p-3 rounded-xl border ${cls} flex items-center justify-between">
-                                            <span>${String.fromCharCode(65 + optIdx)}. ${opt}</span>
-                                            ${optIdx === item.correctAnswer ? '<span class="text-[10px] uppercase font-bold text-emerald-800">Correct Answer</span>' : ''}
-                                            ${optIdx === item.selectedAnswer && !item.isCorrect ? '<span class="text-[10px] uppercase font-bold text-red-800">Your Selection</span>' : ''}
-                                        </div>
-                                    `;
-                                }).join('') : ''}
-                            </div>
-
-                            ${item.explanation ? `
-                                <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-800 leading-relaxed">
-                                    <span class="font-bold text-blue-900 block mb-1">Official Explanation:</span>
-                                    ${item.explanation}
-                                </div>
-                            ` : ''}
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-2">
+                        <h3 class="font-serif text-2xl font-bold text-white">Detailed Answer Rationale Review</h3>
+                        <div class="flex flex-wrap items-center gap-2 font-mono text-xs">
+                            <button onclick="setResultFilter('all')" class="px-3 py-1.5 rounded-xl border transition-all ${currentFilter === 'all' ? 'bg-white text-slate-900 font-bold border-white shadow-md' : 'bg-white/10 text-white hover:bg-white/20 border-white/20'}">
+                                All (${results.total})
+                            </button>
+                            <button onclick="setResultFilter('correct')" class="px-3 py-1.5 rounded-xl border transition-all ${currentFilter === 'correct' ? 'bg-emerald-500 text-white font-bold border-emerald-400 shadow-md' : 'bg-emerald-950/40 text-emerald-300 hover:bg-emerald-900/50 border-emerald-500/30'}">
+                                Correct (${results.correct})
+                            </button>
+                            <button onclick="setResultFilter('wrong')" class="px-3 py-1.5 rounded-xl border transition-all ${currentFilter === 'wrong' ? 'bg-red-500 text-white font-bold border-red-400 shadow-md' : 'bg-red-950/40 text-red-300 hover:bg-red-900/50 border-red-500/30'}">
+                                Incorrect (${results.wrong})
+                            </button>
+                            <button onclick="setResultFilter('unanswered')" class="px-3 py-1.5 rounded-xl border transition-all ${currentFilter === 'unanswered' ? 'bg-slate-300 text-slate-900 font-bold border-white shadow-md' : 'bg-slate-800/60 text-slate-300 hover:bg-slate-700/60 border-slate-600/40'}">
+                                Unanswered (${unansweredCount})
+                            </button>
                         </div>
-                    `).join('') : '<div class="text-white/60 text-center py-8">Review details available above.</div>'}
+                    </div>
+                    
+                    ${filteredItems.length > 0 ? filteredItems.map((item) => {
+                        const qNumber = (item.index !== undefined ? item.index : 0) + 1;
+                        let badgeClass = 'bg-red-100 text-red-800';
+                        let badgeText = 'MISSED';
+                        let headerText = `Question ${qNumber} · Incorrect (-0.25)`;
+                        let cardBorder = 'border-red-300';
+
+                        if (item.isCorrect) {
+                            badgeClass = 'bg-emerald-100 text-emerald-800';
+                            badgeText = 'PASSED';
+                            headerText = `Question ${qNumber} · Correct (+1.0)`;
+                            cardBorder = 'border-emerald-300';
+                        } else if (item.isUnanswered) {
+                            badgeClass = 'bg-slate-100 text-slate-700';
+                            badgeText = 'SKIPPED';
+                            headerText = `Question ${qNumber} · Skipped (0.0)`;
+                            cardBorder = 'border-slate-300';
+                        }
+
+                        return `
+                            <div class="bg-white/95 text-slate-900 rounded-2xl p-6 shadow-md border ${cardBorder}">
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="font-mono text-xs font-bold ${item.isCorrect ? 'text-emerald-700' : item.isUnanswered ? 'text-slate-600' : 'text-red-600'}">
+                                        ${headerText}
+                                    </span>
+                                    <span class="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold ${badgeClass}">
+                                        ${badgeText}
+                                    </span>
+                                </div>
+
+                                <h4 class="font-serif text-lg font-bold text-slate-900 mb-4">${item.questionText || 'Question item'}</h4>
+
+                                <div class="space-y-2 mb-4 text-xs font-mono">
+                                    ${item.options ? item.options.map((opt, optIdx) => {
+                                        let cls = 'bg-slate-50 border-slate-200 text-slate-700';
+                                        if (optIdx === item.correctAnswer) cls = 'bg-emerald-100 border-emerald-400 text-emerald-950 font-bold';
+                                        else if (optIdx === item.selectedAnswer && !item.isCorrect) cls = 'bg-red-100 border-red-400 text-red-950';
+                                        return `
+                                            <div class="p-3 rounded-xl border ${cls} flex items-center justify-between">
+                                                <span>${String.fromCharCode(65 + optIdx)}. ${opt}</span>
+                                                ${optIdx === item.correctAnswer ? '<span class="text-[10px] uppercase font-bold text-emerald-800">Correct Answer</span>' : ''}
+                                                ${optIdx === item.selectedAnswer && !item.isCorrect ? '<span class="text-[10px] uppercase font-bold text-red-800">Your Selection</span>' : ''}
+                                            </div>
+                                        `;
+                                    }).join('') : ''}
+                                </div>
+
+                                ${item.explanation ? `
+                                    <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-800 leading-relaxed">
+                                        <span class="font-bold text-blue-900 block mb-1">Official Explanation:</span>
+                                        ${item.explanation}
+                                    </div>
+                                ` : `
+                                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 leading-relaxed">
+                                        <span class="font-bold text-slate-700 block mb-1">Official Explanation:</span>
+                                        The correct option is derived directly from the certified regulatory curriculum framework.
+                                    </div>
+                                `}
+                            </div>
+                        `;
+                    }).join('') : `
+                        <div class="bg-white/10 rounded-2xl p-10 text-center border border-white/20">
+                            <i class="fas fa-filter text-2xl text-white/50 mb-2 block"></i>
+                            <p class="font-mono text-xs text-white/80 uppercase tracking-wider">No questions found matching the selected filter.</p>
+                            <button onclick="setResultFilter('all')" class="mt-4 px-4 py-2 rounded-xl bg-white text-slate-900 font-bold text-xs font-mono uppercase">
+                                View All Questions
+                            </button>
+                        </div>
+                    `}
                 </div>
             </div>
         </div>

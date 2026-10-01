@@ -22,34 +22,8 @@ if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR);
 }
 
-// Load questions from all academic files
-function loadAllQuestions() {
-  const files = [
-    path.join(__dirname, 'data', 'questions.json'),
-    path.join(__dirname, 'public', 'data', 'questions.json'),
-    path.join(__dirname, 'public', 'data', 'equity-derivatives-questions.json'),
-    path.join(__dirname, 'public', 'data', 'research-analyst-questions.json'),
-    path.join(__dirname, 'public', 'data', 'merchant-banking-questions.json')
-  ];
-  const questionMap = new Map();
-  files.forEach(filePath => {
-    if (fs.existsSync(filePath)) {
-      try {
-        const list = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        if (Array.isArray(list)) {
-          list.forEach(q => {
-            if (q && q.id) questionMap.set(q.id, q);
-          });
-        }
-      } catch (err) {
-        console.error(`Error loading questions from ${filePath}:`, err);
-      }
-    }
-  });
-  return Array.from(questionMap.values());
-}
-
-let questions = loadAllQuestions();
+const questionsHelper = require('./data/questionsHelper');
+let questions = questionsHelper.getAllQuestions();
 console.log(`Initialized database with ${questions.length} total questions across 34 examination sets.`);
 
 // API Routes
@@ -185,34 +159,44 @@ app.get('/api/questions', (req, res) => {
 
 // Submit test answers
 app.post('/api/submit', (req, res) => {
-  const { answers, setId } = req.body;
+  const { answers = [], setId, totalQuestions } = req.body || {};
   let correct = 0;
   let wrong = 0;
   const results = [];
 
-  answers.forEach(answer => {
-    const question = questions.find(q => q.id === answer.questionId);
-    if (question) {
-      const isCorrect = question.correctAnswer === answer.selectedAnswer;
-      if (isCorrect) correct++;
-      else wrong++;
-      
-      results.push({
-        questionId: answer.questionId,
-        selectedAnswer: answer.selectedAnswer,
-        correctAnswer: question.correctAnswer,
-        isCorrect
-      });
-    }
-  });
+  const setQuestions = setId ? questionsHelper.getQuestionsBySetId(setId) : [];
+  const total = Number(totalQuestions) || (setQuestions.length > 0 ? setQuestions.length : (Array.isArray(answers) ? answers.length : 0));
 
-  const total = answers.length;
+  if (Array.isArray(answers)) {
+    answers.forEach(answer => {
+      const question = questionsHelper.getQuestionById(answer.questionId);
+      if (question) {
+        const isCorrect = Number(question.correctAnswer) === Number(answer.selectedAnswer);
+        if (isCorrect) correct++;
+        else wrong++;
+        
+        results.push({
+          questionId: answer.questionId,
+          selectedAnswer: answer.selectedAnswer,
+          correctAnswer: question.correctAnswer,
+          isCorrect,
+          questionText: question.question,
+          options: question.options,
+          explanation: question.explanation
+        });
+      }
+    });
+  }
+
+  const answeredCount = correct + wrong;
+  const unanswered = Math.max(0, total - answeredCount);
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
   res.json({
     total,
     correct,
     wrong,
+    unanswered,
     percentage,
     results
   });

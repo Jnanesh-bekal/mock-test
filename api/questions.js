@@ -1,8 +1,8 @@
 // Vercel serverless function for questions API
-const questions = require('../data/questions.json');
+const { getAllQuestions, getQuestionById, getQuestionsBySetId } = require('../data/questionsHelper');
 
 module.exports = (req, res) => {
-  const { method, query } = req;
+  const { method, query = {} } = req;
 
   // Enable CORS
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -15,41 +15,16 @@ module.exports = (req, res) => {
     return;
   }
 
-  // Get all questions
-  if (method === 'GET' && !query.setId && !query.search && !query.id) {
-    res.status(200).json(questions);
+  if (method !== 'GET') {
+    res.status(405).json({ error: 'Method not allowed' });
     return;
   }
 
-  // Get questions by set
-  if (method === 'GET' && query.setId) {
-    const setId = parseInt(query.setId);
-    const setQuestions = questions.filter(q => q.setId === setId);
-    res.status(200).json(setQuestions);
-    return;
-  }
+  const allQuestions = getAllQuestions();
 
-  // Search questions
-  if (method === 'GET' && query.search) {
-    const searchTerm = query.search.toLowerCase();
-    let filteredQuestions = questions;
-
-    if (query.setId) {
-      filteredQuestions = questions.filter(q => q.setId === parseInt(query.setId));
-    }
-
-    const results = filteredQuestions.filter(q => 
-      q.question.toLowerCase().includes(searchTerm) ||
-      q.options.some(opt => opt.toLowerCase().includes(searchTerm))
-    );
-
-    res.status(200).json(results);
-    return;
-  }
-
-  // Get single question
-  if (method === 'GET' && query.id) {
-    const question = questions.find(q => q.id === query.id);
+  // Get single question by ID
+  if (query.id) {
+    const question = getQuestionById(query.id);
     if (question) {
       res.status(200).json(question);
     } else {
@@ -58,5 +33,32 @@ module.exports = (req, res) => {
     return;
   }
 
-  res.status(405).json({ error: 'Method not allowed' });
+  // Search questions
+  if (query.search) {
+    const searchTerm = query.search.toLowerCase();
+    let filteredQuestions = allQuestions;
+
+    if (query.setId) {
+      filteredQuestions = getQuestionsBySetId(query.setId);
+    }
+
+    const results = filteredQuestions.filter(q => 
+      (q.question && q.question.toLowerCase().includes(searchTerm)) ||
+      (q.options && q.options.some(opt => opt && opt.toLowerCase().includes(searchTerm))) ||
+      (q.explanation && q.explanation.toLowerCase().includes(searchTerm))
+    );
+
+    res.status(200).json(results);
+    return;
+  }
+
+  // Get questions by set
+  if (query.setId) {
+    const setQuestions = getQuestionsBySetId(query.setId);
+    res.status(200).json(setQuestions);
+    return;
+  }
+
+  // Get all questions
+  res.status(200).json(allQuestions);
 };

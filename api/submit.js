@@ -1,5 +1,5 @@
 // Vercel serverless function for submitting test answers
-const questions = require('../data/questions.json');
+const { getQuestionById, getQuestionsBySetId } = require('../data/questionsHelper');
 
 module.exports = (req, res) => {
   // Enable CORS
@@ -18,34 +18,44 @@ module.exports = (req, res) => {
     return;
   }
 
-  const { answers, setId } = req.body;
+  const { answers = [], setId, totalQuestions } = req.body || {};
   let correct = 0;
   let wrong = 0;
   const results = [];
 
-  answers.forEach(answer => {
-    const question = questions.find(q => q.id === answer.questionId);
-    if (question) {
-      const isCorrect = question.correctAnswer === answer.selectedAnswer;
-      if (isCorrect) correct++;
-      else wrong++;
-      
-      results.push({
-        questionId: answer.questionId,
-        selectedAnswer: answer.selectedAnswer,
-        correctAnswer: question.correctAnswer,
-        isCorrect
-      });
-    }
-  });
+  const setQuestions = setId ? getQuestionsBySetId(setId) : [];
+  const total = Number(totalQuestions) || (setQuestions.length > 0 ? setQuestions.length : (Array.isArray(answers) ? answers.length : 0));
 
-  const total = answers.length;
+  if (Array.isArray(answers)) {
+    answers.forEach(answer => {
+      const question = getQuestionById(answer.questionId);
+      if (question) {
+        const isCorrect = Number(question.correctAnswer) === Number(answer.selectedAnswer);
+        if (isCorrect) correct++;
+        else wrong++;
+        
+        results.push({
+          questionId: answer.questionId,
+          selectedAnswer: answer.selectedAnswer,
+          correctAnswer: question.correctAnswer,
+          isCorrect,
+          questionText: question.question,
+          options: question.options,
+          explanation: question.explanation
+        });
+      }
+    });
+  }
+
+  const answeredCount = correct + wrong;
+  const unanswered = Math.max(0, total - answeredCount);
   const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
 
   res.status(200).json({
     total,
     correct,
     wrong,
+    unanswered,
     percentage,
     results
   });
