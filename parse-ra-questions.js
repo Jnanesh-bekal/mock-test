@@ -111,10 +111,17 @@ for (const file of raFiles) {
             // Find correct answer
             const correctAnsName = `CorrectAns${questionId}`;
             const correctAnswerElement = questionCell.find(`input[name="${correctAnsName}"]`);
-            const correctAnswer = correctAnswerElement.length > 0 
+            const correctAnswer = correctAnswerElement.length > 0
                 ? parseInt(correctAnswerElement.val()) - 1 // Convert to 0-indexed
                 : 0;
-            
+
+            // Extract explanation from div with id divAE{questionId}
+            const expDiv = questionCell.find(`div#divAE${questionId}`);
+            let explanation = '';
+            if (expDiv.length > 0) {
+                explanation = expDiv.text().replace(/^Explanation:\s*/i, '').trim();
+            }
+
             if (cleanQuestionText && options.length > 0) {
                 allQuestions.push({
                     id: `ra-${setId}-${questionNumber}`,
@@ -122,9 +129,10 @@ for (const file of raFiles) {
                     setId: setId,
                     question: cleanQuestionText,
                     options: options,
-                    correctAnswer: correctAnswer
+                    correctAnswer: correctAnswer,
+                    explanation: explanation
                 });
-                
+
                 questionNumber++;
             }
         });

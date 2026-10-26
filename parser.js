@@ -71,9 +71,16 @@ function parseHtmlFile(filePath, setId) {
       // Find correct answer from hidden input in the same cell
       const correctAnsInput = cell.find(`input[name="CorrectAns${questionId}"]`);
       let correctAnswer = null;
-      
+
       if (correctAnsInput.length > 0) {
         correctAnswer = parseInt(correctAnsInput.val()) - 1; // Convert to 0-based index
+      }
+
+      // Extract explanation from div with id divAE{questionId}
+      const expDiv = cell.find(`div#divAE${questionId}`);
+      let explanation = '';
+      if (expDiv.length > 0) {
+        explanation = expDiv.text().replace(/^Explanation:\s*/i, '').trim();
       }
 
       // Only add if we have meaningful data
@@ -84,7 +91,8 @@ function parseHtmlFile(filePath, setId) {
           setId: setId,
           question: questionText,
           options: options,
-          correctAnswer: correctAnswer
+          correctAnswer: correctAnswer,
+          explanation: explanation
         });
       }
     });

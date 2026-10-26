@@ -2,15 +2,15 @@
 
 window.examConfig = {
     brand: {
-        name: 'Gipsy Forge',
-        tagline: 'Professional Certification Prep',
-        version: 'v4.2.0',
+        name: 'Goteshwaraie',
+        tagline: 'Nism Certification Prep',
+        version: 'v4.3.1',
         standards: 'SEBI / NISM Compliant'
     },
     stats: {
-        totalTests: 43,
-        totalQuestions: 2950,
-        totalCategories: 5
+        totalTests: 50,
+        totalQuestions: 3300,
+        totalCategories: 6
     },
     floatingCards: [
         {
@@ -162,6 +162,29 @@ window.examConfig = {
                 { id: 41, name: 'MFD Revision 02', type: 'REVISION', questions: 100, duration: '120m', description: 'Scheme Selection, Investor Services & Financial Planning' },
                 { id: 42, name: 'MFD Revision 03', type: 'REVISION', questions: 100, duration: '120m', description: 'Rapid High-Yield Operational & Compliance Drills' },
                 { id: 43, name: 'MFD Real Feel Full Mock', type: 'REAL FEEL', questions: 100, duration: '120m', description: 'Full Simulation Paper - NISM Series V-A Certification' }
+            ]
+        },
+        {
+            code: 'IA',
+            series: 'NISM-Series-X-A',
+            title: 'Investment Advisor',
+            subtitle: 'Financial Planning & Advisory Services',
+            description: 'Master investment advisory regulations, financial planning, portfolio management, risk assessment, and SEBI RIA compliance for investment advisor certification.',
+            level: 'X-A',
+            icon: 'hand-holding-dollar',
+            iconGradient: 'from-rose-500 to-pink-600',
+            tags: ['Financial Planning', 'Advisory', 'Portfolio', 'Risk', 'Compliance'],
+            testCount: 6,
+            questionCount: 300,
+            available: true,
+            route: 'renderInvestmentAdvisor',
+            sets: [
+                { id: 44, name: 'IA Test 01', type: 'TEST', questions: 50, duration: '60m', description: 'Investment Advisor Test 1' },
+                { id: 45, name: 'IA Test 02', type: 'TEST', questions: 50, duration: '60m', description: 'Investment Advisor Test 2' },
+                { id: 46, name: 'IA Test 03', type: 'TEST', questions: 50, duration: '60m', description: 'Investment Advisor Test 3' },
+                { id: 47, name: 'IA Test 04', type: 'TEST', questions: 50, duration: '60m', description: 'Investment Advisor Test 4' },
+                { id: 48, name: 'IA Test 05', type: 'TEST', questions: 50, duration: '60m', description: 'Investment Advisor Test 5' },
+                { id: 49, name: 'IA Test 06', type: 'TEST', questions: 50, duration: '60m', description: 'Investment Advisor Test 6' }
             ]
         }
     ]

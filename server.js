@@ -24,7 +24,7 @@ if (!fs.existsSync(DATA_DIR)) {
 
 const questionsHelper = require('./data/questionsHelper');
 let questions = questionsHelper.getAllQuestions();
-console.log(`Initialized database with ${questions.length} total questions across 43 examination sets.`);
+console.log(`Initialized database with ${questions.length} total questions across 49 examination sets.`);
 
 // API Routes
 
@@ -73,7 +73,13 @@ app.get('/api/sets', (req, res) => {
     { id: 40, name: 'MFD Revision 1', description: 'Taxation, Return Measurement & Performance Evaluation' },
     { id: 41, name: 'MFD Revision 2', description: 'Scheme Selection, Investor Services & Financial Planning' },
     { id: 42, name: 'MFD Revision 3', description: 'Rapid High-Yield Operational & Compliance Drills' },
-    { id: 43, name: 'MFD Real Feel Mock', description: 'Full Simulation Paper - NISM Series V-A Certification' }
+    { id: 43, name: 'MFD Real Feel Mock', description: 'Full Simulation Paper - NISM Series V-A Certification' },
+    { id: 44, name: 'IA Test 1', description: 'Investment Advisor Test 1' },
+    { id: 45, name: 'IA Test 2', description: 'Investment Advisor Test 2' },
+    { id: 46, name: 'IA Test 3', description: 'Investment Advisor Test 3' },
+    { id: 47, name: 'IA Test 4', description: 'Investment Advisor Test 4' },
+    { id: 48, name: 'IA Test 5', description: 'Investment Advisor Test 5' },
+    { id: 49, name: 'IA Test 6', description: 'Investment Advisor Test 6' }
   ];
   res.json(sets);
 });

@@ -49,7 +49,7 @@ const currentState = {
     timeRemaining: 7200,
     timerInterval: null,
     practiceMode: false,
-    showInstantSolution: false,
+    visibleSolutions: {},
     testResults: null,
     resultFilter: 'all',
     modalOpen: null,
@@ -237,10 +237,8 @@ function renderNavigation() {
             <div class="nav-pill-glass rounded-full px-5 sm:px-7 py-2.5 sm:py-3 flex items-center justify-between transition-all">
                 <!-- Brandmark -->
                 <div class="flex items-center gap-2.5 sm:gap-3 cursor-pointer" onclick="renderHome()">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-serif font-bold text-sm shadow-md">
-                        GF
-                    </div>
-                    <span class="font-serif text-lg sm:text-xl font-bold tracking-tight text-slate-800">Gipsy Forge</span>
+                    <img src="1logo.jpg" class="w-8 h-8 rounded-full object-cover shadow-md" alt="Logo">
+                    <span class="font-serif text-lg sm:text-xl font-bold tracking-tight text-slate-800">${window.examConfig.brand.name}</span>
                 </div>
 
                 <!-- Navigation Links (Desktop) -->
@@ -459,7 +457,7 @@ function renderHome() {
                 <footer class="border-t border-white/35 pt-8 pb-10">
                     <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
                         <div class="text-sm text-white/90 drop-shadow-sm font-medium">
-                            © 2026 Gipsy Forge. Built for Indian Capital Market Certification Preparation.
+                            © 2026 ${window.examConfig.brand.name}. Built for Indian Capital Market Certification Preparation.
                         </div>
                         <div class="flex items-center gap-6 text-sm font-medium text-white/90">
                             <button onclick="openModal('syllabus')" class="hover:text-white transition-colors">Curriculum</button>
@@ -660,6 +658,10 @@ function renderMutualFunds() {
     renderCategorySetsView('MFD');
 }
 
+function renderInvestmentAdvisor() {
+    renderCategorySetsView('IA');
+}
+
 function selectEquityDerivativesSet(setId) {
     selectSet(setId);
 }
@@ -673,6 +675,10 @@ function selectMerchantBankingSet(setId) {
 }
 
 function selectMutualFundsSet(setId) {
+    selectSet(setId);
+}
+
+function selectInvestmentAdvisorSet(setId) {
     selectSet(setId);
 }
 
@@ -722,7 +728,7 @@ async function startTest(setId) {
     currentState.answers = [];
     currentState.timeRemaining = 7200; // 120 minutes
     currentState.view = 'test';
-    currentState.showInstantSolution = false;
+    currentState.visibleSolutions = {};
 
     startTimer();
     renderTest();
@@ -756,8 +762,8 @@ function togglePracticeMode() {
     renderTest();
 }
 
-function toggleInstantSolution() {
-    currentState.showInstantSolution = !currentState.showInstantSolution;
+function toggleInstantSolution(questionId) {
+    currentState.visibleSolutions[questionId] = true;
     renderTest();
 }
 
@@ -849,10 +855,10 @@ function renderTest() {
                             </button>
 
                             ${currentState.practiceMode ? `
-                                <button onclick="toggleInstantSolution()" 
-                                        class="text-xs font-mono flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors ${currentState.showInstantSolution ? 'bg-blue-100 text-blue-800 border border-blue-300' : 'text-slate-600 hover:text-slate-900 bg-slate-100 border border-slate-200'}">
+                                <button onclick="toggleInstantSolution('${question.id}')"
+                                        class="text-xs font-mono flex items-center gap-1.5 px-3 py-1 rounded-full transition-colors text-slate-600 hover:text-slate-900 bg-slate-100 border border-slate-200">
                                     <i class="fas fa-lightbulb text-[10px]"></i>
-                                    <span>${currentState.showInstantSolution ? 'Hide Solution' : 'Show Solution'}</span>
+                                    <span>Show Solution</span>
                                 </button>
                             ` : ''}
                         </div>
@@ -875,8 +881,8 @@ function renderTest() {
                                 circleClass = 'border-blue-600 bg-blue-600 text-white font-bold';
                             }
 
-                            // In practice mode with solution revealed
-                            if (currentState.practiceMode && currentState.showInstantSolution) {
+                            // In practice mode with solution revealed for this specific question
+                            if (currentState.practiceMode && currentState.visibleSolutions[question.id]) {
                                 if (index === question.correctAnswer) {
                                     optionClass = 'border-emerald-600 bg-emerald-50 text-emerald-950 font-medium';
                                     circleClass = 'border-emerald-600 bg-emerald-600 text-white font-bold';
@@ -902,7 +908,7 @@ function renderTest() {
                     </div>
 
                     <!-- Instant Explanation Panel (Practice Mode) -->
-                    ${currentState.practiceMode && currentState.showInstantSolution ? `
+                    ${currentState.practiceMode && currentState.visibleSolutions[question.id] ? `
                         <div class="p-6 rounded-2xl bg-blue-50 border border-blue-200 text-slate-800 text-sm leading-relaxed mb-6">
                             <div class="font-mono text-xs uppercase tracking-wider text-blue-800 font-bold mb-2 flex items-center gap-2">
                                 <i class="fas fa-circle-info"></i>
@@ -958,6 +964,11 @@ function selectAnswer(answerIndex) {
             questionId: question.id,
             selectedAnswer: answerIndex
         });
+    }
+
+    // Auto-show solution for this question in practice mode
+    if (currentState.practiceMode) {
+        currentState.visibleSolutions[question.id] = true;
     }
 
     renderTest();
@@ -1237,7 +1248,7 @@ function renderSearch() {
                         <button onclick="renderHome()" 
                                 class="text-white/80 hover:text-white transition-colors flex items-center gap-2 text-xs font-mono uppercase tracking-wider">
                             <i class="fas fa-arrow-left"></i>
-                            <span>Return to Gipsy Forge</span>
+                            <span>Return to ${window.examConfig.brand.name}</span>
                         </button>
                         <div class="w-px h-5 bg-white/20"></div>
                         <span class="font-serif text-lg font-bold text-white">Repository Search Engine</span>
@@ -1402,8 +1413,8 @@ function renderModalContent() {
                 <div class="bg-white text-slate-900 rounded-t-3xl sm:rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-white/40">
                     <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-200">
                         <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-serif font-bold text-xs flex items-center justify-center">GF</div>
-                            <h3 class="font-serif text-xl font-bold text-slate-900">Gipsy Forge Navigation</h3>
+                            <img src="1logo.jpg" class="w-8 h-8 rounded-full object-cover" alt="Logo">
+                            <h3 class="font-serif text-xl font-bold text-slate-900">${window.examConfig.brand.name} Navigation</h3>
                         </div>
                         <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 hover:text-slate-900">
                             <i class="fas fa-times text-xs"></i>
