@@ -1,5 +1,7 @@
 {
   "version": 2,
+  "buildCommand": "npm install",
+  "outputDirectory": "public",
   "functions": {
     "api/*.js": {
       "includeFiles": "data/**"
